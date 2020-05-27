@@ -1,5 +1,6 @@
+#!/usr/bin/python3
 from datetime import datetime, timedelta
-from icalendar import Calendar, Event
+from icalendar import Calendar, Event, Alarm
 import csv
 
 def get_start_time(date, slot):
@@ -19,7 +20,7 @@ def get_start_time(date, slot):
 
 
 cal = Calendar()
-with open('../data.csv', 'rt') as csvfile:
+with open('in.csv', 'rt') as csvfile:
     print("Reading file")
     reader = csv.reader(csvfile, delimiter=',', quotechar='|')
     n = -1
@@ -30,7 +31,8 @@ with open('../data.csv', 'rt') as csvfile:
             keys = row
         if n > 2:
             e = dict(zip(keys, row))
-            if e['Registration'] is not "":
+            print(keys)
+            if e['Registration'] is not "" and e['Host'] is not "":
                 event = Event()
                 event.add('summary', e['Affiliation'] + e['Project'])
                 print(e['date'])
@@ -44,6 +46,11 @@ with open('../data.csv', 'rt') as csvfile:
                 event.add('location', e['Registration'] )
                 event.add('description', 'Host: ' + e['Host'] + "\nPlease refer to the registration URL for the connection details: " + e['Registration'])
                 print(event)
+                alarm = Alarm()
+                alarm.add("ACTION", "DISPLAY")
+                alarm.add("TRIGGER", start_time - timedelta(days=10))
+                alarm.add("SUMMARY", "72 hours remain to submit materials for " + e['Affiliation'] + e['Project'])
+                event.add_component(alarm)
                 cal.add_component(event)
 
 f = open('wg3_meetings.ics', 'wb')
