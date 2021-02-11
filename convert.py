@@ -26,23 +26,29 @@ with open('in.csv', 'rt') as csvfile:
     n = -1
     for row in reader:
         n = n + 1
-        print(n)
         if n == 2:
             keys = row
+            print("Keys: " + str(keys))
         if n > 2:
+            print(row)
             e = dict(zip(keys, row))
-            print(keys)
-            if e['Registration'] is not "" and e['Host'] is not "":
+
+            if e['Registration'] != "" and e['Host'] != "":
+
                 event = Event()
                 event.add('summary', e['Affiliation'] + e['Project'])
                 print(e['date'])
+                mins = 120
+                if e['duration [minutes - default=120]'] != "":
+                    mins = int(e['duration [minutes - default=120]'])
+                    print("meeting len " + str(mins))
 
                 start_date = datetime.strptime(e['date'] + '+0000', "%Y-%m-%d%z")
                 start_time = get_start_time(start_date, e['UTC slot'])
                 print('start time: ' + str(start_time))
 
                 event.add('dtstart', start_time)
-                event.add('dtend',  start_time + timedelta(hours=2))
+                event.add('dtend',  start_time + timedelta(minutes=mins))
                 event.add('location', e['Registration'] )
                 event.add('description', 'Host: ' + e['Host'] + "\nPlease refer to the registration URL for the connection details: " + e['Registration'])
                 print(event)
