@@ -23,6 +23,7 @@ cal = Calendar()
 with open('in.csv', 'rt') as csvfile:
     print("Reading file")
     reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+    event_count = 0
     n = -1
     for row in reader:
         n = n + 1
@@ -32,15 +33,15 @@ with open('in.csv', 'rt') as csvfile:
         if n > 2:
             print(row)
             e = dict(zip(keys, row))
-
+            print(e)
             if e['Registration'] != "" and e['Host'] != "":
-
+                print("Criteria met")
                 event = Event()
                 event.add('summary', e['Affiliation'] + e['Project'])
                 print(e['date'])
                 mins = 120
-                if e['duration [minutes - default=120]'] != "":
-                    mins = int(e['duration [minutes - default=120]'])
+                if e['dur [min]'] != "":
+                    mins = int(e['dur [min]'])
                     print("meeting len " + str(mins))
 
                 start_date = datetime.strptime(e['date'] + '+0000', "%Y-%m-%d%z")
@@ -57,8 +58,10 @@ with open('in.csv', 'rt') as csvfile:
                 alarm.add("TRIGGER", start_time - timedelta(days=10))
                 alarm.add("SUMMARY", "72 hours remain to submit materials for " + e['Affiliation'] + e['Project'])
                 event.add_component(alarm)
+                event_count = event_count + 1
                 cal.add_component(event)
 
 f = open('wg3_meetings.ics', 'wb')
 f.write(cal.to_ical())
 f.close()
+print("Added events: ", event_count)
