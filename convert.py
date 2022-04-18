@@ -19,7 +19,11 @@ def get_start_time(date, slot):
     return date
 
 
+slug = 'wg3'
 cal = Calendar()
+cal.add('prodid', '-//Dragonfly//ISO_Meetings' + slug + '//')
+cal.add('version', '2.0')
+
 with open('in.csv', 'rt') as csvfile:
     print("Reading file")
     reader = csv.reader(csvfile, delimiter=',', quotechar='|')
@@ -47,21 +51,18 @@ with open('in.csv', 'rt') as csvfile:
                 start_date = datetime.strptime(e['date'] + '+0000', "%Y-%m-%d%z")
                 start_time = get_start_time(start_date, e['UTC slot'])
                 print('start time: ' + str(start_time))
-
+                event.add('dtstamp', datetime.now())
+                event.add('uid', slug + start_time.isoformat())
                 event.add('dtstart', start_time)
                 event.add('dtend',  start_time + timedelta(minutes=mins))
                 event.add('location', e['Registration'] )
                 event.add('description', 'Host: ' + e['Host'] + "\nPlease refer to the registration URL for the connection details: " + e['Registration'])
                 print(event)
-                alarm = Alarm()
-                alarm.add("ACTION", "DISPLAY")
-                alarm.add("TRIGGER", start_time - timedelta(days=10))
-                alarm.add("SUMMARY", "72 hours remain to submit materials for " + e['Affiliation'] + e['Project'])
-                event.add_component(alarm)
+
                 event_count = event_count + 1
                 cal.add_component(event)
 
-f = open('wg3_meetings.ics', 'wb')
+f = open(slug + '_meetings.ics', 'wb')
 f.write(cal.to_ical())
 f.close()
 print("Added events: ", event_count)
