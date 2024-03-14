@@ -6,7 +6,10 @@ import csv
 def get_start_time(date, slot):
     _t = e['UTC slot'].replace(' UTC', '')
     print(_t)
-    if(len(_t) > 3):
+    if _t == "0":
+        hrs = 0
+        mins = 0
+    elif(len(_t) > 3):
         hrs = int(_t[0:2])
         mins = int(_t[2:4])
     else:
